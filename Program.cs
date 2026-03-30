@@ -3,6 +3,7 @@ using NetSentinel.Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,11 @@ builder.Services.AddAuthorization();
     
 builder.Services.AddOpenApi();
 
+var provider = new FileExtensionContentTypeProvider();
+provider.Mappings[".ps1"] = "text/plain";
+
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -60,7 +66,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-//app.UseHttpsRedirection();
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = provider
+});
 
 app.UseCors("FrontEndRelease"); // libera o Front-end
 app.UseAuthentication();         // JWT
