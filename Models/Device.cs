@@ -32,6 +32,5 @@ public class Device
     public User? User { get; set; }
     
     public List<InstalledApplication> InstalledApplications { get; set; } = new();
-    
-    public List<Vulnerability> Vulnerabilities { get; set; } = new();
+
 }

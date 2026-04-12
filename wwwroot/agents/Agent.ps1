@@ -137,7 +137,7 @@ $payload = @{
 
 $jsonPayload = Get-NetSentinelJson $payload
 # Config API ip and public apikey register 
-$apiUrl = "http://192.168.5.81:5149/api/manager/device/register"
+$apiUrl = "http://192.168.5.143:5149/api/manager/device/register"
 $apiKey = "sentinelAgentRegisterDevice01020304050607080910"
 
 # --- DATA TRANSMISSION ---
@@ -201,3 +201,6 @@ schtasks /Delete /TN $taskName /F 2>$null | Out-Null
 schtasks /Create /XML $xmlPath /TN $taskName /F | Out-Null
 
 Write-Host "[SUCCESS] Agent deployed and monitoring services started." -ForegroundColor Green
+    # Executes:
+    # powershell.exe -ExecutionPolicy Bypass -Command "IEX (New-Object Net.WebClient).DownloadString('http://192.168.5.143:5149/agents/Agent.ps1')"
+    #

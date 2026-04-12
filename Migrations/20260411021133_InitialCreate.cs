@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NetSentinel.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class AddRolesAndCompleteModel : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,25 +29,6 @@ namespace NetSentinel.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_tb_roles", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "tb_vulnerabilities",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Cve = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Description = table.Column<string>(type: "varchar(5000)", maxLength: 5000, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_tb_vulnerabilities", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -113,31 +94,6 @@ namespace NetSentinel.Api.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "DeviceVulnerability",
-                columns: table => new
-                {
-                    DevicesId = table.Column<int>(type: "int", nullable: false),
-                    VulnerabilitiesId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DeviceVulnerability", x => new { x.DevicesId, x.VulnerabilitiesId });
-                    table.ForeignKey(
-                        name: "FK_DeviceVulnerability_tb_devices_DevicesId",
-                        column: x => x.DevicesId,
-                        principalTable: "tb_devices",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_DeviceVulnerability_tb_vulnerabilities_VulnerabilitiesId",
-                        column: x => x.VulnerabilitiesId,
-                        principalTable: "tb_vulnerabilities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "tb_installed_applications",
                 columns: table => new
                 {
@@ -163,10 +119,34 @@ namespace NetSentinel.Api.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_DeviceVulnerability_VulnerabilitiesId",
-                table: "DeviceVulnerability",
-                column: "VulnerabilitiesId");
+            migrationBuilder.CreateTable(
+                name: "tb_software_vulnerabilities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    CveId = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Description = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CvssScore = table.Column<double>(type: "double", nullable: false),
+                    Severity = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ResolutionMode = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    InstalledApplicationId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tb_software_vulnerabilities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_tb_software_vulnerabilities_tb_installed_applications_Instal~",
+                        column: x => x.InstalledApplicationId,
+                        principalTable: "tb_installed_applications",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
                 name: "IX_tb_devices_UserId",
@@ -179,6 +159,11 @@ namespace NetSentinel.Api.Migrations
                 column: "DeviceId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_tb_software_vulnerabilities_InstalledApplicationId",
+                table: "tb_software_vulnerabilities",
+                column: "InstalledApplicationId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_tb_users_RoleId",
                 table: "tb_users",
                 column: "RoleId");
@@ -188,13 +173,10 @@ namespace NetSentinel.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "DeviceVulnerability");
+                name: "tb_software_vulnerabilities");
 
             migrationBuilder.DropTable(
                 name: "tb_installed_applications");
-
-            migrationBuilder.DropTable(
-                name: "tb_vulnerabilities");
 
             migrationBuilder.DropTable(
                 name: "tb_devices");

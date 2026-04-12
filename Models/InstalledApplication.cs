@@ -24,4 +24,20 @@ public class InstalledApplication
     public int DeviceId { get; set; }
     public Device? Device { get; set; }
 
+    public ICollection<SoftwareVulnerability> SoftwareVulnerabilities { get; set; } = new List<SoftwareVulnerability>();
+
+}
+[Table("tb_software_vulnerabilities")]
+public class SoftwareVulnerability
+{
+    public int Id { get; set; }
+    public string CveId { get; set; } = string.Empty; // Ex: CVE-2024-1234
+    public string Description { get; set; } = string.Empty;
+    public double CvssScore { get; set; } // Ex: 9.8 (Crítico)
+    public string Severity { get; set; } = string.Empty; // CRITICAL, HIGH, MEDIUM
+    public string ResolutionMode { get; set; } = string.Empty; 
+
+    public int InstalledApplicationId { get; set; }
+    
+    public InstalledApplication ?  InstalledApplication { get; set; } 
 }

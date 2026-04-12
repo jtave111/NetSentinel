@@ -22,21 +22,6 @@ namespace NetSentinel.Api.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("DeviceVulnerability", b =>
-                {
-                    b.Property<int>("DevicesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VulnerabilitiesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DevicesId", "VulnerabilitiesId");
-
-                    b.HasIndex("VulnerabilitiesId");
-
-                    b.ToTable("DeviceVulnerability");
-                });
-
             modelBuilder.Entity("NetSentinel.Api.Models.Device", b =>
                 {
                     b.Property<int>("Id")
@@ -142,6 +127,43 @@ namespace NetSentinel.Api.Migrations
                     b.ToTable("tb_roles");
                 });
 
+            modelBuilder.Entity("NetSentinel.Api.Models.SoftwareVulnerability", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CveId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<double>("CvssScore")
+                        .HasColumnType("double");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("InstalledApplicationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ResolutionMode")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstalledApplicationId");
+
+                    b.ToTable("tb_software_vulnerabilities");
+                });
+
             modelBuilder.Entity("NetSentinel.Api.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -184,49 +206,6 @@ namespace NetSentinel.Api.Migrations
                     b.ToTable("tb_users");
                 });
 
-            modelBuilder.Entity("NetSentinel.Api.Models.Vulnerability", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Cve")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("varchar(5000)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("tb_vulnerabilities");
-                });
-
-            modelBuilder.Entity("DeviceVulnerability", b =>
-                {
-                    b.HasOne("NetSentinel.Api.Models.Device", null)
-                        .WithMany()
-                        .HasForeignKey("DevicesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NetSentinel.Api.Models.Vulnerability", null)
-                        .WithMany()
-                        .HasForeignKey("VulnerabilitiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("NetSentinel.Api.Models.Device", b =>
                 {
                     b.HasOne("NetSentinel.Api.Models.User", "User")
@@ -247,6 +226,17 @@ namespace NetSentinel.Api.Migrations
                     b.Navigation("Device");
                 });
 
+            modelBuilder.Entity("NetSentinel.Api.Models.SoftwareVulnerability", b =>
+                {
+                    b.HasOne("NetSentinel.Api.Models.InstalledApplication", "InstalledApplication")
+                        .WithMany("SoftwareVulnerabilities")
+                        .HasForeignKey("InstalledApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InstalledApplication");
+                });
+
             modelBuilder.Entity("NetSentinel.Api.Models.User", b =>
                 {
                     b.HasOne("NetSentinel.Api.Models.Role", "Role")
@@ -261,6 +251,11 @@ namespace NetSentinel.Api.Migrations
             modelBuilder.Entity("NetSentinel.Api.Models.Device", b =>
                 {
                     b.Navigation("InstalledApplications");
+                });
+
+            modelBuilder.Entity("NetSentinel.Api.Models.InstalledApplication", b =>
+                {
+                    b.Navigation("SoftwareVulnerabilities");
                 });
 
             modelBuilder.Entity("NetSentinel.Api.Models.Role", b =>

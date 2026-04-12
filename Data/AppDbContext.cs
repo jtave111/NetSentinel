@@ -11,5 +11,6 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Device> Devices { get; set; }
     public DbSet<InstalledApplication> InstalledApplications { get; set; }
-    public DbSet<Vulnerability> Vulnerabilities { get; set; }
+
+    public DbSet<SoftwareVulnerability> SoftwareVulnerabilities { get; set; }
 }

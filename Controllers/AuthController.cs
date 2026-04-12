@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NetSentinel.Api.Controllers;
 
@@ -61,7 +62,7 @@ public class AuthController : ControllerBase
 
         return Ok(new { token = jwt, message = "Login successful" });
     }
-
+    [AllowAnonymous]
     [HttpPost("users")]
     public async Task<IActionResult> Register([FromBody] RegisterUserDto request)
     {

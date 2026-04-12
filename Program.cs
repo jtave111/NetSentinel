@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.StaticFiles;
+using NetSentinel.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,11 +24,12 @@ builder.Services.AddCors(options =>
                 "http://localhost:3000", // React
                 "http://localhost:4200", // Angular
                 "http://localhost:5173",   // Vite 
-                "http://192.168.5.81:5173"
+                "http://192.168.5.143:5173"
                   
               )
               .AllowAnyHeader()  // Permite mandar o Token JWT no cabeçalho
-              .AllowAnyMethod(); // Permite POST, GET, PUT, DELETE
+              .AllowAnyMethod() // Permite POST, GET, PUT, DELETE
+              .AllowCredentials();
     });
 });
 
@@ -54,6 +56,8 @@ builder.Services.AddAuthorization();
     
 builder.Services.AddOpenApi();
 
+builder.Services.AddHttpClient<NvdIntegrationService>();
+builder.Services.AddHostedService<NetSentinel.Api.Workers.VulnerabilityScannerWorker>();
 var provider = new FileExtensionContentTypeProvider();
 provider.Mappings[".ps1"] = "text/plain";
 
