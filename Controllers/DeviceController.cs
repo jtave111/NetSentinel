@@ -132,11 +132,68 @@ public class DeviceController : ControllerBase
         }
     }
 
+    [Authorize]
+    [HttpGet("listAll")]
+    public async Task<IActionResult> GetAllDevicesRaw()
+    {
+        var devices = await _context.Devices
+            .Include(d => d.InstalledApplications).Select(d => new DeviceDto {
+                Id = d.Id,
+                Hostname = d.Hostname,
+                Ipv4Address = d.Ipv4Address,
+                Ipv6Address = d.Ipv6Address,
+                MacAddress = d.MacAddress,
+                OperatingSystem = d.OperatingSystem,
+                FirstSync = d.FirstSync,
+                LastSync = d.LastSync,
+            
+                InstalledApplications = d.InstalledApplications.Select(a => new {
+                    Id = a.Id,
+                    Name = a.Name,
+                    Version = a.Version,
+                    Publisher = a.Publisher
+                }).ToList()
+            })
+            .ToListAsync();
+        return Ok(devices);
+    }
     // Listagem para o nextJs
     [Authorize]
     [HttpGet("list")] 
     public async Task<IActionResult> GetAllDevices()
     {
-        return Ok(await _context.Devices.Include(d => d.InstalledApplications).ToListAsync());
+        var devices = await _context.Devices
+        .Include(d => d.InstalledApplications)
+            .ThenInclude(a => a.SoftwareVulnerabilities)
+        .Select(d => new DeviceDto
+        {
+            Id = d.Id,
+            Hostname = d.Hostname,
+            Ipv4Address = d.Ipv4Address,
+            Ipv6Address = d.Ipv6Address,
+            MacAddress = d.MacAddress,
+            OperatingSystem = d.OperatingSystem,
+            FirstSync = d.FirstSync,
+            LastSync = d.LastSync,
+            InstalledApplications = d.InstalledApplications.Select(a => new InstalledApplicationDto
+            {
+                Id = a.Id,
+                Name = a.Name,
+                Version = a.Version,
+                Publisher = a.Publisher,
+                Vulnerabilities = a.SoftwareVulnerabilities.Select(v => new SoftwareVulnerabilityDto
+                {
+                    Id = v.Id,
+                    CveId = v.CveId,
+                    Description = v.Description,
+                    CvssScore = v.CvssScore,
+                    Severity = v.Severity
+                }).ToList()
+            }).ToList()
+        })
+        .ToListAsync();
+
+    return Ok(devices);
     }   
 }
+

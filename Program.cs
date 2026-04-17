@@ -21,7 +21,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontEndRelease", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:3000", // React
+                "http://localhost:3000", //react
+                "http://192.168.5.143:3000", // React
                 "http://localhost:4200", // Angular
                 "http://localhost:5173",   // Vite 
                 "http://192.168.5.143:5173"
