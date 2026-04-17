@@ -1,0 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+  :root { --bg:#f0f0f0;--s0:#ffffff;--s1:#fafafa;--s2:#f5f5f5;--b0:#d1d1d1;--b1:#e0e0e0;--t0:#141414;--t1:#424242;--t2:#767676;--t3:#b0b0b0;--hov:#f5f5f5; }
+  .dark { --bg:#161616;--s0:#1d1d1d;--s1:#262626;--s2:#2d2d2d;--b0:#393939;--b1:#313131;--t0:#f4f4f4;--t1:#c6c6c6;--t2:#8d8d8d;--t3:#525252;--hov:#232323; }
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--t0);font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  ::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--b0);border-radius:2px;}
+}
