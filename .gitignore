@@ -485,3 +485,6 @@ $RECYCLE.BIN/
 
 appsettings.json
 appsettings.Development.jsonNetSentinel.Web/.next/
+appsettings.Development.json
+NetSentinel.Web/.next/
+NetSentinel.Web/node_modules/
