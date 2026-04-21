@@ -29,7 +29,7 @@
 
 O **NetSentinel** é uma plataforma de **Patch Management** e **Governança de Segurança** para redes corporativas. Agentes instalados nos endpoints reportam automaticamente os softwares instalados para a API central, que cruza essas informações com o banco de dados público de vulnerabilidades **NVD/NIST** em tempo real, gerando alertas visuais categorizados por criticidade.
 
-O projeto está alinhado ao **ODS 16 da ONU** — Paz, Justiça e Instituições Eficazes — com foco em transparência institucional, governança corporativa e proteção contra vazamento de dados sensíveis.
+
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -126,7 +126,7 @@ NetSentinel/
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download)
 - [Node.js 20+](https://nodejs.org/)
-- [PostgreSQL](https://www.postgresql.org/) (ou SQL Server — configurável no `appsettings.json`)
+- [MYSQL](https://www.mysql.com/) ( — configurável no `appsettings.json`)
 
 ---
 
@@ -310,7 +310,6 @@ Distribuído sob a licença **MIT**. Veja [`LICENSE`](LICENSE) para mais informa
 
 <div align="center">
 
-Desenvolvido com propósito de segurança corporativa e alinhado ao **ODS 16 da ONU**
 
 *Transparência · Governança · Proteção de Dados*
 
