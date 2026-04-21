@@ -27,6 +27,8 @@ public class Device
     
     public DateTime LastSync { get; set; }
     public DateTime FirstSync { get; set; }
+
+    public bool IsActive { get; set; } = true;
     
     public int? UserId { get; set; }
     public User? User { get; set; }

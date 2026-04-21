@@ -58,7 +58,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 
 builder.Services.AddHttpClient<NvdIntegrationService>();
-builder.Services.AddHostedService<NetSentinel.Api.Workers.VulnerabilityScannerWorker>();
+builder.Services.AddHostedService<NetSentinel.Api.Workers.DeviceStatusWorker>();
 var provider = new FileExtensionContentTypeProvider();
 provider.Mappings[".ps1"] = "text/plain";
 

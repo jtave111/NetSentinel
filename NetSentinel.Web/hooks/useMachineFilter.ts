@@ -10,7 +10,7 @@ export function useMachineFilter(devices: Device[]) {
     const q = query.toLowerCase();
     return devices.filter(d=>{
       const ok1 = filter==="all"||deriveStatus(d)===filter;
-      const ok2 = !q||d.hostname.toLowerCase().includes(q)||d.ipv4Address.includes(q)||d.operatingSystem.toLowerCase().includes(q)||(d.user?.name??"").toLowerCase().includes(q);
+      const ok2 = !q||d.hostname.toLowerCase().includes(q)||(d.ipv4Address?.toLowerCase()??"").includes(q)||(d.operatingSystem?.toLowerCase()??"").includes(q)||((d.user?.name??"").toLowerCase().includes(q));
       return ok1&&ok2;
     });
   },[devices,filter,query]);

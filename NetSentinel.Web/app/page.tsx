@@ -12,7 +12,7 @@ import { VulnerabilityFeed } from "@/components/dashboard/VulnerabilityFeed";
 import { PageSpinner }  from "@/components/ui/Spinner";
 import { ErrorBanner }  from "@/components/ui/ErrorBanner";
 import { relativeTime } from "@/lib/utils";
-
+//TODO: Colocar o usuario no Device e usar isso pra mostrar o nome do usuário na tabela e permitir filtrar por usuário, além de mostrar no resumo do parque quais usuários tem mais máquinas e vulnerabilidades associadas
 export default function DashboardPage() {
   const {user,isLoading:al}=useAuth(); const router=useRouter();
   const {devices,loading,error,refetch,lastFetch}=useDevices();

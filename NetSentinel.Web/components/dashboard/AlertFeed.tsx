@@ -7,7 +7,7 @@ export function AlertFeed({devices}:{devices:Device[]}){
   const alerts=devices.flatMap(d=>topCves(d).filter(v=>v.cvssScore>=7).map(v=>({
     sev:v.cvssScore>=9?"critical":"warning",
     title:`${v.cveId} detectado`,
-    desc:`${d.hostname} · ${devices.flatMap(x=>x.installedApplications).find(a=>a.id===v.installedApplicationId)?.name??"app"}`,
+    desc:`${d.hostname} · ${d.installedApplications.find(a=>a.vulnerabilities.some(vuln=>vuln.id===v.id))?.name??"app"}`,
     ts:relativeTime(d.lastSync)+" atrás",
   }))).sort((a,b)=>a.sev==="critical"&&b.sev!=="critical"?-1:1).slice(0,10);
   const SEV:Record<string,string>={critical:"bg-danger",warning:"bg-warn",info:"bg-brand"};

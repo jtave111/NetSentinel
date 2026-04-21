@@ -70,3 +70,11 @@ export async function apiRegisterUser(data: {
 export async function apiGetDevices() {
   return request<import("@/types").Device[]>("/api/manager/device/list");
 }
+
+// GET /api/users/all
+
+export async function apiGetAllUsers(){
+
+  return request<import("@/types").User[]>("/api/user/all");
+
+}

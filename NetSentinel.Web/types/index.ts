@@ -34,6 +34,8 @@ export interface InstalledApplication {
 
 export interface Device {
   id: number;
+  userId: number | null;
+  user?: User;
   hostname: string;
   ipv4Address: string | null;
   ipv6Address: string | null;

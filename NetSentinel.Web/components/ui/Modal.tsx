@@ -24,7 +24,7 @@ export function DeviceModal({ device, onClose }:Props){
         </div>
         <div className="p-4 flex flex-col gap-3">
           <Block title="Informações">
-            {[["Hostname",device.hostname],["IPv4",device.ipv4Address],["IPv6",device.ipv6Address||"—"],["MAC",device.macAddress],["Sistema",device.operatingSystem],["Usuário",device.user?.name??"—"],["Departamento",device.user?.department??"—"],["Primeiro sync",relativeTime(device.firstSync)+" atrás"],["Último sync",relativeTime(device.lastSync)+" atrás"]].map(([k,v])=><KV key={k} k={k} v={v}/>)}
+            {[["Hostname",device.hostname],["IPv4",device.ipv4Address||"—"],["IPv6",device.ipv6Address||"—"],["MAC",device.macAddress||"—"],["Sistema",device.operatingSystem||"—"],["Usuário",device.user?.name??"—"],["Departamento",device.user?.department??"—"],["Primeiro sync",relativeTime(device.firstSync)+" atrás"],["Último sync",relativeTime(device.lastSync)+" atrás"]].map(([k,v])=><KV key={k} k={k} v={v}/>)}
           </Block>
           <Block title={`Vulnerabilidades (${cves.length})`}>
             {cves.length===0?<p className="px-3.5 py-3 font-mono text-[11px] text-faint">Nenhuma vulnerabilidade.</p>:cves.map(v=>(
