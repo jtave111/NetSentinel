@@ -17,7 +17,7 @@ public class NvdResponseDto
     [JsonPropertyName("totalResults")]
     public int TotalResults { get; set; }
 
-    // ✅ "vulnerabilities" — correto para o endpoint de CVEs
+    //  "vulnerabilities" — correto para o endpoint de CVEs
     [JsonPropertyName("vulnerabilities")]
     public List<NvdVulnerabilityWrapper>? Vulnerabilities { get; set; }
 }

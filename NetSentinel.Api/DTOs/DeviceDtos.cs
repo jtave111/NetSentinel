@@ -1,3 +1,5 @@
+using NetSentinel.Api.Models;
+
 namespace NetSentinel.Api.DTOs;
 
 public class CreateDeviceDto
@@ -25,6 +27,7 @@ public class CreateDeviceDto
     public string Ipv6Address { get; set; }
     public string MacAddress { get; set; }
     public string OperatingSystem { get; set; }
+
     public DateTime FirstSync { get; set; }
     public DateTime LastSync { get; set; }
     public object InstalledApplications { get; set; }
@@ -33,16 +36,25 @@ public class CreateDeviceDto
 internal class SoftwareVulnerabilityDto
 {
     public int Id { get; set; }
-    public string CveId { get; set; }
-    public string Description { get; set; }
-    public double CvssScore { get; set; }
-    public string Severity { get; set; }
+
+    public CveDto ? CveDto { get; set; }
 }
+
+public class CveDto
+{
+    public string CveName { get; set; } = string.Empty; // Ex: CVE-2024-1234
+    public string Description { get; set; } = string.Empty;
+    public double CvssScore { get; set; } // Ex: 9.8 (Crítico)
+    public string Severity { get; set; } = string.Empty; // CRITICAL, HIGH, MEDIUM
+    public string ResolutionMode { get; set; } = string.Empty; // Ex: "PATCH_AVAILABLE", "NO_PATCH", "WORKAROUND_ONLY"  
+}   
 public class AppPayloadDto
 {
     public string Name { get; set; } = string.Empty;
     public string Version { get; set; } = string.Empty;
     public string Publisher { get; set; } = string.Empty;
+
+    public string HashApplication { get; set; } = string.Empty;
 }
 internal class InstalledApplicationDto
 {
@@ -50,5 +62,7 @@ internal class InstalledApplicationDto
     public string Name { get; set; }
     public string Version { get; set; }
     public string Publisher { get; set; }
+
+    public string HashApplication { get; set; }
     public List<SoftwareVulnerabilityDto> Vulnerabilities { get; set; }
 }

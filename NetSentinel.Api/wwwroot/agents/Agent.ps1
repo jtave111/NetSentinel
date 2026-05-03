@@ -18,6 +18,8 @@
          Win32_ComputerSystem, contornando a limitação do contexto SYSTEM.
        - Telemetria Híbrida: Coleta via WMI (Hardware/Rede) e Registry (Softwares), 
          focando exclusivamente em instalações reais (MSI/EXE).
+       - Validação de Integridade: Geração de SHA-256 para binários detectados 
+         visando identificar adulterações ou malwares.
        - Transmissão Segura: Envio de payload JSON via System.Net.WebClient 
          com autenticação via header (X-Api-Key).
 
@@ -28,8 +30,15 @@
        - Event-Driven: Execução imediata baseada em EventIDs do MsiInstaller 
          (Instalação/Remoção de softwares).
 
+    O nosso Agente de coleta faz a extração de Hashes baseando-se em chaves de desinstalação padrão do Windows. Porém, 
+    muitos softwares modernos e pacotes MSI não registram o caminho absoluto do binário (.exe), apontando apenas para 
+    diretórios ou não preenchendo as chaves DisplayIcon e InstallLocation. O agente foi desenhado de forma resiliente: 
+    se ele não tem certeza absoluta de qual é o binário principal, ele marca como N/A para evitar gerar um falso-positivo 
+    de integridade.
+
 .NOTES
     Architecture: Hybrid (C# API + PowerShell Agent)
+    Integrity: SHA-256 Binaries Fingerprinting
 #>
 
 Write-Host "[INFO] Initializing NetSentinel Agent deployment..." -ForegroundColor Cyan
@@ -44,14 +53,35 @@ if (-not (Test-Path $installDir)) {
 
 # 2. Agent Payload Injection
 $agentCode = @'
-# --- DEPENDENCIES ---
+# --- DEPENDENCIES: HASHING & JSON ---
+
+# Função para cálculo de Hash compatível com .NET antigo (PS 2.0+)
+function Get-NetSentinelHash($filePath) {
+    if (-not $filePath -or -not (Test-Path $filePath)) { return "N/A" }
+    
+    # Limpa caminhos que contém aspas ou índices de ícone (ex: C:\app.exe,0)
+    $cleanPath = $filePath.Replace('"', '').Split(',')[0].Trim()
+    if (-not (Test-Path $cleanPath) -or (Test-Path $cleanPath -PathType Container)) { return "N/A" }
+
+    try {
+        $stream = [System.IO.File]::OpenRead($cleanPath)
+        $sha256 = New-Object System.Security.Cryptography.SHA256Managed
+        $hashBytes = $sha256.ComputeHash($stream)
+        $stream.Close()
+        return [BitConverter]::ToString($hashBytes).Replace("-", "").ToLower()
+    } catch {
+        return "Access_Denied"
+    }
+}
+
 function Get-NetSentinelJson($obj) {
     if ($PSVersionTable.PSVersion.Major -ge 3) {
         return $obj | ConvertTo-Json -Depth 4
     }
     
+    # Fallback para Windows 7 (PS 2.0) incluindo o novo campo Hash com o nome correto para a API
     $appsJson = ($obj.installedApplications | ForEach-Object {
-        '{"Name":"' + $_.Name + '","Version":"' + $_.Version + '","Publisher":"' + $_.Publisher + '"}'
+        '{"Name":"' + $_.Name + '","Version":"' + $_.Version + '","Publisher":"' + $_.Publisher + '","hashApplication":"' + $_.hashApplication + '"}'
     }) -join ","
     
     return @"
@@ -108,7 +138,7 @@ if ($userEmail -eq "Not_Identified") {
     } catch {}
 }
 
-# --- SYSTEM TELEMETRY ---
+# --- SYSTEM TELEMETRY (Híbrida com Geração de Hash) ---
 $registryPaths = @(
     "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
     "HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
@@ -116,9 +146,18 @@ $registryPaths = @(
 
 $installedApps = Get-ItemProperty $registryPaths -ErrorAction SilentlyContinue |
     Where-Object { $_.DisplayName -ne $null } |
-    Select-Object @{Name="Name"; Expression={$_.DisplayName}},
-                  @{Name="Version"; Expression={$_.DisplayVersion}},
-                  @{Name="Publisher"; Expression={$_.Publisher}}
+    ForEach-Object {
+        # Tenta localizar o binário original para gerar o Hash (DisplayIcon ou InstallLocation)
+        $possiblePath = $_.DisplayIcon
+        if (-not $possiblePath) { $possiblePath = $_.InstallLocation }
+
+        New-Object PSObject -Property @{
+            Name            = $_.DisplayName
+            Version         = $_.DisplayVersion
+            Publisher       = $_.Publisher
+            hashApplication = Get-NetSentinelHash($possiblePath) # <--- Nome corrigido aqui
+        }
+    }
 
 $network = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPEnabled -eq $true } | Select-Object -First 1
 $os = (Get-WmiObject Win32_OperatingSystem).Caption
@@ -136,8 +175,9 @@ $payload = @{
 }
 
 $jsonPayload = Get-NetSentinelJson $payload
+
 # Config API ip and public apikey register 
-$apiUrl = "http://192.168.5.143:5149/api/manager/device/register"
+$apiUrl = "http://192.168.5.80:5149/api/manager/device/register"
 $apiKey = "sentinelAgentRegisterDevice01020304050607080910"
 
 # --- DATA TRANSMISSION ---
@@ -151,7 +191,7 @@ try {
 '@
 
 [System.IO.File]::WriteAllText($agentPath, $agentCode)
-Write-Host "[OK] Payload staged at $agentPath" -ForegroundColor Yellow
+Write-Host "[OK] Payload staged at $agentPath (SHA-256 support enabled)" -ForegroundColor Yellow
 
 # 3. Task Scheduler Registration
 $taskName = "NetSentinelHybridAgent"
@@ -201,6 +241,6 @@ schtasks /Delete /TN $taskName /F 2>$null | Out-Null
 schtasks /Create /XML $xmlPath /TN $taskName /F | Out-Null
 
 Write-Host "[SUCCESS] Agent deployed and monitoring services started." -ForegroundColor Green
-    # Executes:
-    # powershell.exe -ExecutionPolicy Bypass -Command "IEX (New-Object Net.WebClient).DownloadString('http://192.168.5.143:5149/agents/Agent.ps1')"
-    #
+
+# Comando para rodar na máquina alvo:
+# Set-ExecutionPolicy Bypass -Scope Process -Force; IEX (New-Object Net.WebClient).DownloadString('http://192.168.110.65:5149/DeploySentinel.ps1')

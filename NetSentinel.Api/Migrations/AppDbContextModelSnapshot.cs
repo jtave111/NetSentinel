@@ -3,7 +3,6 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetSentinel.Api.Data;
 
@@ -12,11 +11,9 @@ using NetSentinel.Api.Data;
 namespace NetSentinel.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260411021133_InitialCreate")]
-    partial class InitialCreate
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,6 +21,38 @@ namespace NetSentinel.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("NetSentinel.Api.Models.Cve", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CveName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<double>("CvssScore")
+                        .HasColumnType("double");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ResolutionMode")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("tb_cves");
+                });
 
             modelBuilder.Entity("NetSentinel.Api.Models.Device", b =>
                 {
@@ -50,6 +79,9 @@ namespace NetSentinel.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(39)
                         .HasColumnType("varchar(39)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("LastSync")
                         .HasColumnType("datetime(6)");
@@ -84,6 +116,11 @@ namespace NetSentinel.Api.Migrations
 
                     b.Property<int>("DeviceId")
                         .HasColumnType("int");
+
+                    b.Property<string>("HashApplication")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -138,29 +175,15 @@ namespace NetSentinel.Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CveId")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<double>("CvssScore")
-                        .HasColumnType("double");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int?>("CveId")
+                        .HasColumnType("int");
 
                     b.Property<int>("InstalledApplicationId")
                         .HasColumnType("int");
 
-                    b.Property<string>("ResolutionMode")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("CveId");
 
                     b.HasIndex("InstalledApplicationId");
 
@@ -231,11 +254,17 @@ namespace NetSentinel.Api.Migrations
 
             modelBuilder.Entity("NetSentinel.Api.Models.SoftwareVulnerability", b =>
                 {
+                    b.HasOne("NetSentinel.Api.Models.Cve", "Cve")
+                        .WithMany()
+                        .HasForeignKey("CveId");
+
                     b.HasOne("NetSentinel.Api.Models.InstalledApplication", "InstalledApplication")
                         .WithMany("SoftwareVulnerabilities")
                         .HasForeignKey("InstalledApplicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Cve");
 
                     b.Navigation("InstalledApplication");
                 });

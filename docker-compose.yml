@@ -1,0 +1,74 @@
+services:
+  # --- BANCO DE DADOS (MySQL 8.4 LTS) ---
+  netsentinel-db:
+    image: mysql:8.4
+    container_name: netsentinel-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: netsentinel_db
+      MYSQL_ROOT_PASSWORD: NetSentZombi2026!
+      MYSQL_USER: api_user
+      MYSQL_PASSWORD: NetSentZombi2026!
+    ports:
+      - "3306:3306"
+    volumes:
+      - netsentinel-data:/var/lib/mysql
+    networks:
+      - netsentinel-network
+    # NOVIDADE: Verifica se o banco está pronto para aceitar conexões
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "api_user", "-pNetSentZombi2026!"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # --- API NETSENTINEL (.NET 10) ---
+  netsentinel-api:
+    build: 
+      context: ./NetSentinel.Api
+    container_name: netsentinel-api
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "5149:5149" # Host 5149 -> Container 5149
+    depends_on:
+      netsentinel-db:
+        condition: service_healthy # Só sobe quando o banco passar no healthcheck
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # AJUSTE .NET 10: Força a API a ouvir na 5149 dentro do container
+      - ASPNETCORE_HTTP_PORTS=5149
+
+      - Ollama__BaseUrl=http://host.docker.internal:11434
+      - Ollama__Model=qwen2.5-coder
+      
+      - ConnectionStrings__DefaultConnection=Server=netsentinel-db;Port=3306;Database=netsentinel_db;User=api_user;Password=NetSentZombi2026!;
+      - AgentApiKey=sentinelAgentRegisterDevice01020304050607080910
+      - NvdApi__ApiKey=98356355-2a72-463b-b155-844644a486db
+      - NvdApi__BaseUrl=https://services.nvd.nist.gov/rest/json/cves/2.0
+      - Jwt__Key=n3tS3nt1n3L!_vX9$Kj2Qw5Rp8ZbYm4N_7FcWgT@1Lh6D#xVzAq*P+sJ3uE0yR
+      - Jwt__Issuer=NetSentinelApi
+      - Jwt__Audience=NetSentinelClients
+    networks:
+      - netsentinel-network
+
+  # --- DASHBOARD WEB (Frontend) ---
+  netsentinel-web:
+    build:
+      context: ./NetSentinel.Web
+    container_name: netsentinel-web
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - netsentinel-api
+    networks:
+      - netsentinel-network
+
+networks:
+  netsentinel-network:
+    driver: bridge
+
+volumes:
+  netsentinel-data:

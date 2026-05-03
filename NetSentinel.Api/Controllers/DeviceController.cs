@@ -71,7 +71,7 @@ public class DeviceController : ControllerBase
         if (existingDevice != null)
         {
             // MODO UPDATE
-           existingDevice.Ipv4Address = request.Ipv4Address ?? "unknown";
+            existingDevice.Ipv4Address = request.Ipv4Address ?? "unknown";
             existingDevice.Ipv6Address = request.Ipv6Address ?? "";  
             existingDevice.MacAddress = request.MacAddress ?? "00:00:00:00:00:00";
             existingDevice.OperatingSystem = request.OperatingSystem ?? "unknown";
@@ -90,7 +90,8 @@ public class DeviceController : ControllerBase
                     {
                         Name = appDto.Name,
                         Version = appDto.Version,
-                        Publisher = appDto.Publisher
+                        Publisher = appDto.Publisher,
+                        HashApplication = appDto.HashApplication
                     });
                 }
             }
@@ -121,7 +122,9 @@ public class DeviceController : ControllerBase
                     {
                         Name = appDto.Name,
                         Version = appDto.Version,
-                        Publisher = appDto.Publisher
+                        Publisher = appDto.Publisher,
+                        HashApplication = appDto.HashApplication
+                        
                     });
                 }
             }
@@ -151,7 +154,22 @@ public class DeviceController : ControllerBase
                     Id = a.Id,
                     Name = a.Name,
                     Version = a.Version,
-                    Publisher = a.Publisher
+                    Publisher = a.Publisher,
+                    HashApplication = a.HashApplication,
+                    Vulnerabilities = a.SoftwareVulnerabilities.Select(v => new SoftwareVulnerabilityDto
+                    {
+                        Id = v.Id,
+                        CveDto = v.Cve != null ? new CveDto
+                        {
+                            CveName = v.Cve.CveName,
+                            Description = v.Cve.Description,
+                            CvssScore = v.Cve.CvssScore,
+                            Severity = v.Cve.Severity,
+                            ResolutionMode = v.Cve.ResolutionMode
+                        } : null
+
+                    }).ToList()
+
                 }).ToList()
             })
             .ToListAsync();
@@ -181,14 +199,21 @@ public class DeviceController : ControllerBase
                 Name = a.Name,
                 Version = a.Version,
                 Publisher = a.Publisher,
+                HashApplication = a.HashApplication,
                 Vulnerabilities = a.SoftwareVulnerabilities.Select(v => new SoftwareVulnerabilityDto
                 {
                     Id = v.Id,
-                    CveId = v.CveId,
-                    Description = v.Description,
-                    CvssScore = v.CvssScore,
-                    Severity = v.Severity
+                    CveDto = v.Cve != null ? new CveDto
+                    {
+                        CveName = v.Cve.CveName,
+                        Description = v.Cve.Description,
+                        CvssScore = v.Cve.CvssScore,
+                        Severity = v.Cve.Severity,
+                        ResolutionMode = v.Cve.ResolutionMode
+                    } : null
+
                 }).ToList()
+
             }).ToList()
         })
         .ToListAsync();

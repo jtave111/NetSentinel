@@ -5,8 +5,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.StaticFiles;
 using NetSentinel.Api.Services;
+using NetSentinel.Api.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.Services.AddControllers();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -14,22 +17,21 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-
-
+// --- AJUSTE NO CORS ---
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontEndRelease", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:3000", //react
-                "http://192.168.5.143:3000", // React
-                "http://localhost:4200", // Angular
-                "http://localhost:5173",   // Vite 
-                "http://192.168.5.143:5173"
-                  
+                "http://localhost",        // Porta 80 do Docker Web
+                "http://127.0.0.1",
+                "http://192.168.5.80",
+                "http://192.168.110.65",
+                "http://localhost:3000",   // Dev React
+                "http://localhost:5173"    // Dev Vite/Next
               )
-              .AllowAnyHeader()  // Permite mandar o Token JWT no cabeçalho
-              .AllowAnyMethod() // Permite POST, GET, PUT, DELETE
+              .AllowAnyHeader()
+              .AllowAnyMethod()
               .AllowCredentials();
     });
 });
@@ -54,31 +56,53 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-    
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(); // Gera o JSON em /openapi/v1.json
 
-builder.Services.AddHttpClient<NvdIntegrationService>();
+
+builder.Services.AddHttpClient<OllamaVulnerabilityService>(client => 
+{
+    var url = builder.Configuration["Ollama:BaseUrl"] ?? "http://host.docker.internal:11434";
+    client.BaseAddress = new Uri(url);
+});
+
+builder.Services.AddHostedService<NetSentinel.Api.Workers.VulnerabilityScannerWorker>();
+
 builder.Services.AddHostedService<NetSentinel.Api.Workers.DeviceStatusWorker>();
+
+
 var provider = new FileExtensionContentTypeProvider();
 provider.Mappings[".ps1"] = "text/plain";
 
-
-
 var app = builder.Build();
+
+
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.UseStaticFiles(new StaticFileOptions
-{
-    ContentTypeProvider = provider
-});
-
-app.UseCors("FrontEndRelease"); // libera o Front-end
-app.UseAuthentication();         // JWT
-app.UseAuthorization();          // Role
-
+app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = provider });
+app.UseCors("FrontEndRelease");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
-app.Run();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext.Database.Migrate();
+        logger.LogInformation("[SENTINELA] Banco de dados migrado com sucesso");
+                
+    }catch (Exception ex)
+    {
+        logger.LogError(ex, "[SENTINELA - ERRO CRÍTICO] Erro ao aplicar migrações ou inicializar o banco de dados");
+    }
+}
+
+app.Run(); 

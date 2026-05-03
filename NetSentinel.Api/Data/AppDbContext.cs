@@ -13,4 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<InstalledApplication> InstalledApplications { get; set; }
 
     public DbSet<SoftwareVulnerability> SoftwareVulnerabilities { get; set; }
+
+    public DbSet<Cve> Cves { get; set; }
+    
 }
