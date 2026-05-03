@@ -38,7 +38,7 @@ public class SoftwareVulnerability
     public int Id { get; set; }
     public int InstalledApplicationId { get; set; }
     public int? CveId { get; set; } // Relacionamento opcional para detalhes adicionais da CVE
-    public Cve? Cve { get; set; } // Relacionamento opcional para detalhes adicionais da CVE
+    public Cve? Cve { get; set; } 
     public InstalledApplication ?  InstalledApplication { get; set; } 
 }
 

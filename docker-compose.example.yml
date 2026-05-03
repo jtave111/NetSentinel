@@ -1,0 +1,127 @@
+
+services:
+
+  netsentinel-db:
+
+    image: mysql:8.4
+
+    container_name: netsentinel-db
+
+    restart: always
+
+    environment:
+
+      MYSQL_DATABASE: netsentinel_db
+
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+      MYSQL_USER: api_user
+
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    ports:
+
+      - "3306:3306"
+
+    volumes:
+
+      - netsentinel-data:/var/lib/mysql
+
+    networks:
+
+      - netsentinel-network
+
+    healthcheck:
+
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "api_user", "-p${MYSQL_PASSWORD}"]
+
+      interval: 5s
+
+      timeout: 5s
+
+      retries: 10
+
+  netsentinel-api:
+
+    build: 
+
+      context: ./NetSentinel.Api
+
+    container_name: netsentinel-api
+
+    restart: always
+
+    extra_hosts:
+
+      - "host.docker.internal:host-gateway"
+
+    ports:
+
+      - "5149:5149"
+
+    depends_on:
+
+      netsentinel-db:
+
+        condition: service_healthy
+
+    environment:
+
+      - ASPNETCORE_ENVIRONMENT=Development
+
+      - ASPNETCORE_HTTP_PORTS=5149
+
+      - Ollama__BaseUrl=http://host.docker.internal:11434
+
+      - Ollama__Model=qwen2.5-coder
+
+      - ConnectionStrings__DefaultConnection=Server=netsentinel-db;Port=3306;Database=netsentinel_db;User=api_user;Password=${MYSQL_PASSWORD};
+
+      - AgentApiKey=${AGENT_API_KEY}
+
+      - NvdApi__ApiKey=${NVD_API_KEY}
+
+      - NvdApi__BaseUrl=https://services.nvd.nist.gov/rest/json/cves/2.0
+
+      - Jwt__Key=${JWT_SECRET}
+
+      - Jwt__Issuer=NetSentinelApi
+
+      - Jwt__Audience=NetSentinelClients
+
+    networks:
+
+      - netsentinel-network
+
+  netsentinel-web:
+
+    build:
+
+      context: ./NetSentinel.Web
+
+    container_name: netsentinel-web
+
+    restart: always
+
+    ports:
+
+      - "80:80"
+
+    depends_on:
+
+      - netsentinel-api
+
+    networks:
+
+      - netsentinel-network
+
+networks:
+
+  netsentinel-network:
+
+    driver: bridge
+
+volumes:
+
+  netsentinel-data:
+

@@ -107,4 +107,5 @@ docker-compose.local.yml
  
 # Container logs
 docker-logs/
- 
+docker-compose.yml
+commands
