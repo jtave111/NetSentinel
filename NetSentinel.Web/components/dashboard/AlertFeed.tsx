@@ -4,8 +4,8 @@ import { deriveStatus, topCves } from "@/types";
 import { relativeTime } from "@/lib/utils";
 import { Panel, PanelHeader } from "@/components/ui/Panel";
 export function AlertFeed({devices}:{devices:Device[]}){
-  const alerts=devices.flatMap(d=>topCves(d).filter(v=>v.cvssScore>=7).map(v=>({
-    sev:v.cvssScore>=9?"critical":"warning",
+  const alerts=devices.flatMap(d=>topCves(d).filter(v=>((v.cvssScore??0)>=7)).map(v=>({
+    sev:(v.cvssScore??0)>=9?"critical":"warning",
     title:`${v.cveId} detectado`,
     desc:`${d.hostname} · ${d.installedApplications.find(a=>a.vulnerabilities.some(vuln=>vuln.id===v.id))?.name??"app"}`,
     ts:relativeTime(d.lastSync)+" atrás",

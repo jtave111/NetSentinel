@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [loading,setLoading]=useState(false); const [err,setErr]=useState("");
   useEffect(()=>{ if(!isLoading&&user) router.replace("/"); },[user,isLoading,router]);
   async function onSubmit(e:React.FormEvent){ e.preventDefault(); setErr(""); setLoading(true);
-    try { await login(u,p); showToast("Login realizado com sucesso.","success"); router.replace("/"); }
+    try { await login(u,p); showToast("Login realizado com sucesso.","success"); window.location.href = "/"; }
     catch (_e) { setErr("Usuário ou senha inválidos."); } finally { setLoading(false); }
   }
   const fs="w-full h-9 px-3 font-mono text-[12.5px] outline-none transition-colors";

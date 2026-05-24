@@ -27,7 +27,7 @@ export function Sidebar(){
       </nav>
       <div className="flex-shrink-0" style={{borderTop:"1px solid var(--b0)"}}>
         {user&&<div className="flex items-center gap-2.5 px-3.5 py-2.5">
-          <div className="w-7 h-7 flex items-center justify-center flex-shrink-0 bg-brand text-white text-[11px] font-semibold">{user.username.slice(0,2).toUpperCase()}</div>
+          <div className="w-7 h-7 flex items-center justify-center flex-shrink-0 bg-brand text-white text-[11px] font-semibold">{user.username ? user.username.slice(0,2).toUpperCase() : "??"}</div>
           <div className="flex-1 min-w-0"><div className="text-[12px] font-medium truncate" style={{color:"var(--t0)"}}>{user.username}</div><div className="font-mono text-[10px]" style={{color:"var(--t3)"}}>{user.role}</div></div>
         </div>}
         <button onClick={()=>{logout();router.push("/login");}} className="w-full flex items-center gap-2 px-4 py-2.5 text-[12px] transition-colors"

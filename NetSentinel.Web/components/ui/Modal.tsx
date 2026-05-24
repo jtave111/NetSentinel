@@ -27,16 +27,19 @@ export function DeviceModal({ device, onClose }:Props){
             {[["Hostname",device.hostname],["IPv4",device.ipv4Address||"—"],["IPv6",device.ipv6Address||"—"],["MAC",device.macAddress||"—"],["Sistema",device.operatingSystem||"—"],["Usuário",device.user?.name??"—"],["Departamento",device.user?.department??"—"],["Primeiro sync",relativeTime(device.firstSync)+" atrás"],["Último sync",relativeTime(device.lastSync)+" atrás"]].map(([k,v])=><KV key={k} k={k} v={v}/>)}
           </Block>
           <Block title={`Vulnerabilidades (${cves.length})`}>
-            {cves.length===0?<p className="px-3.5 py-3 font-mono text-[11px] text-faint">Nenhuma vulnerabilidade.</p>:cves.map(v=>(
-              <div key={v.id} className="flex items-start gap-3 px-3.5 py-2.5" style={{borderBottom:"1px solid var(--b1)"}}>
-                <SeverityTag severity={v.severity}/>
-                <div className="flex-1 min-w-0">
-                  <div className="font-mono text-[11.5px] font-medium" style={{color:"var(--t0)"}}>{v.cveId}</div>
-                  <div className="text-[11px] mt-0.5 leading-snug" style={{color:"var(--t2)"}}>{v.description}</div>
+            {cves.length===0?<p className="px-3.5 py-3 font-mono text-[11px] text-faint">Nenhuma vulnerabilidade.</p>:cves.map(v=>{
+              const score = v.cvssScore ?? 0;
+              return(
+                <div key={v.id} className="flex items-start gap-3 px-3.5 py-2.5" style={{borderBottom:"1px solid var(--b1)"}}>
+                  <SeverityTag severity={v.severity}/>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono text-[11.5px] font-medium" style={{color:"var(--t0)"}}>{v.cveId}</div>
+                    <div className="text-[11px] mt-0.5 leading-snug" style={{color:"var(--t2)"}}>{v.description}</div>
+                  </div>
+                  <span className={`font-mono text-[12px] font-semibold flex-shrink-0 ${score>=9?"text-danger":"text-warn"}`}>{score.toFixed(1)}</span>
                 </div>
-                <span className={`font-mono text-[12px] font-semibold flex-shrink-0 ${v.cvssScore>=9?"text-danger":"text-warn"}`}>{v.cvssScore.toFixed(1)}</span>
-              </div>
-            ))}
+              );
+            })}
           </Block>
           <Block title={`Apps Instalados (${device.installedApplications.length})`}>
             {device.installedApplications.length===0?<p className="px-3.5 py-3 font-mono text-[11px] text-faint">Sem dados.</p>:device.installedApplications.map(a=>{

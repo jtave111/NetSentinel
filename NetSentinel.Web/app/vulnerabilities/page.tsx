@@ -16,7 +16,7 @@ export default function VulnerabilitiesPage() {
   const [query,setQuery]=useState(""); const [sev,setSev]=useState("ALL");
   useEffect(()=>{ if(!al&&!user) router.replace("/login"); },[user,al,router]);
   if(al) return <PageSpinner/>; if(!user) return null;
-  const allV=devices.flatMap(d=>d.installedApplications.flatMap(a=>(a.vulnerabilities??[]).map(v=>({...v,hostname:d.hostname,ip:d.ipv4Address,appName:a.name,appVersion:a.version})))).sort((a,b)=>b.cvssScore-a.cvssScore);
+  const allV=devices.flatMap(d=>d.installedApplications.flatMap(a=>(a.vulnerabilities??[]).map(v=>({...v,hostname:d.hostname,ip:d.ipv4Address,appName:a.name,appVersion:a.version})))).sort((a,b)=>((b.cvssScore??0)-(a.cvssScore??0)));
   const SEVS=["ALL","CRITICAL","HIGH","MEDIUM","LOW"];
   const counts:Record<string,number>={};
   SEVS.forEach(s=>{counts[s]=s==="ALL"?allV.length:allV.filter(v=>v.severity===s).length;});
@@ -49,7 +49,7 @@ export default function VulnerabilitiesPage() {
                       <tr key={`${v.id}-${i}`} className="transition-colors" style={{borderBottom:"1px solid var(--b1)"}} onMouseEnter={e=>(e.currentTarget.style.background="var(--hov)")} onMouseLeave={e=>(e.currentTarget.style.background="")}>
                         <td className="px-4 py-2.5"><span className="font-mono text-[11.5px] font-semibold text-danger">{v.cveId}</span></td>
                         <td className="px-4 py-2.5"><SeverityTag severity={v.severity}/></td>
-                        <td className="px-4 py-2.5 min-w-[110px]"><ScoreBar score={v.cvssScore}/></td>
+                        <td className="px-4 py-2.5 min-w-[110px]"><ScoreBar score={v.cvssScore ?? 0}/></td>
                         <td className="px-4 py-2.5 max-w-[280px]"><span className="text-[12px] line-clamp-2" style={{color:"var(--t1)"}}>{v.description}</span></td>
                         <td className="px-4 py-2.5"><div className="font-mono text-[11px]" style={{color:"var(--t0)"}}>{v.appName}</div><div className="font-mono text-[10px]" style={{color:"var(--t3)"}}>{v.appVersion}</div></td>
                         <td className="px-4 py-2.5"><div className="font-mono text-[11px]" style={{color:"var(--t0)"}}>{v.hostname}</div><div className="font-mono text-[10px]" style={{color:"var(--t3)"}}>{v.ip}</div></td>

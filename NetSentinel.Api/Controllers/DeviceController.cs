@@ -159,15 +159,11 @@ public class DeviceController : ControllerBase
                     Vulnerabilities = a.SoftwareVulnerabilities.Select(v => new SoftwareVulnerabilityDto
                     {
                         Id = v.Id,
-                        CveDto = v.Cve != null ? new CveDto
-                        {
-                            CveName = v.Cve.CveName,
-                            Description = v.Cve.Description,
-                            CvssScore = v.Cve.CvssScore,
-                            Severity = v.Cve.Severity,
-                            ResolutionMode = v.Cve.ResolutionMode
-                        } : null
-
+                        CveId = v.Cve != null ? v.Cve.CveName : string.Empty,
+                        Description = v.Cve != null ? v.Cve.Description : string.Empty,
+                        CvssScore = v.Cve != null ? v.Cve.CvssScore : 0,
+                        Severity = v.Cve != null ? v.Cve.Severity : string.Empty,
+                        ResolutionMode = v.Cve != null ? v.Cve.ResolutionMode : string.Empty
                     }).ToList()
 
                 }).ToList()
@@ -203,15 +199,11 @@ public class DeviceController : ControllerBase
                 Vulnerabilities = a.SoftwareVulnerabilities.Select(v => new SoftwareVulnerabilityDto
                 {
                     Id = v.Id,
-                    CveDto = v.Cve != null ? new CveDto
-                    {
-                        CveName = v.Cve.CveName,
-                        Description = v.Cve.Description,
-                        CvssScore = v.Cve.CvssScore,
-                        Severity = v.Cve.Severity,
-                        ResolutionMode = v.Cve.ResolutionMode
-                    } : null
-
+                    CveId = v.Cve != null ? v.Cve.CveName : string.Empty,
+                    Description = v.Cve != null ? v.Cve.Description : string.Empty,
+                    CvssScore = v.Cve != null ? v.Cve.CvssScore : 0,
+                    Severity = v.Cve != null ? v.Cve.Severity : string.Empty,
+                    ResolutionMode = v.Cve != null ? v.Cve.ResolutionMode : string.Empty
                 }).ToList()
 
             }).ToList()

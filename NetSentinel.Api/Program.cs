@@ -21,15 +21,19 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontEndRelease", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost",        // Porta 80 do Docker Web
-                "http://127.0.0.1",
-                "http://localhost:3000",   // Dev React
-                "http://localhost:5173"    // Dev Vite/Next
-              )
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        policy.SetIsOriginAllowed(origin =>
+        {
+            if (string.IsNullOrEmpty(origin)) return false;
+            var uri = new Uri(origin);
+            return uri.Host == "localhost"
+                || uri.Host == "127.0.0.1"
+                || uri.Host.StartsWith("192.168.")
+                || uri.Host.StartsWith("10.")
+                || uri.Host.StartsWith("172.");
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
@@ -56,11 +60,13 @@ builder.Services.AddAuthorization();
 builder.Services.AddOpenApi(); // Gera o JSON em /openapi/v1.json
 
 
-builder.Services.AddHttpClient<OllamaVulnerabilityService>(client => 
+builder.Services.AddHttpClient<OllamaVulnerabilityService>(client =>
 {
     var url = builder.Configuration["Ollama:BaseUrl"] ?? "http://host.docker.internal:11434";
     client.BaseAddress = new Uri(url);
 });
+
+builder.Services.AddHttpClient<NvdService>();
 
 builder.Services.AddHostedService<NetSentinel.Api.Workers.VulnerabilityScannerWorker>();
 

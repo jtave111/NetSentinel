@@ -36,8 +36,11 @@ public class CreateDeviceDto
 internal class SoftwareVulnerabilityDto
 {
     public int Id { get; set; }
-
-    public CveDto ? CveDto { get; set; }
+    public string CveId { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public double CvssScore { get; set; }
+    public string Severity { get; set; } = string.Empty;
+    public string ResolutionMode { get; set; } = string.Empty;
 }
 
 public class CveDto

@@ -188,7 +188,7 @@ export default function UsersPage() {
                         <td className="px-4 py-2.5">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 flex items-center justify-center bg-brand text-white font-mono text-[10px] flex-shrink-0">
-                              {u.name?.slice(0, 2).toUpperCase() ?? "??"}
+                              {u.name ? u.name.slice(0, 2).toUpperCase() : "??"}
                             </div>
                             <span className="text-[12.5px] font-medium" style={{ color: "var(--t0)" }}>
                               {u.name}

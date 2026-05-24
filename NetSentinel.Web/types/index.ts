@@ -20,7 +20,7 @@ export interface SoftwareVulnerability {
   id: number;
   cveId: string;
   description: string;
-  cvssScore: number;
+  cvssScore?: number;
   severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
 }
 
@@ -73,13 +73,13 @@ export function deriveStatus(d: Device): DeviceStatus {
 export function maxCvss(d: Device): number {
   return d.installedApplications
     .flatMap(a => a.vulnerabilities)
-    .reduce((max, v) => Math.max(max, v.cvssScore), 0);
+    .reduce((max, v) => Math.max(max, v.cvssScore ?? 0), 0);
 }
 
 export function topCves(d: Device): SoftwareVulnerability[] {
   return d.installedApplications
     .flatMap(a => a.vulnerabilities)
-    .sort((a, b) => b.cvssScore - a.cvssScore)
+    .sort((a, b) => (b.cvssScore ?? 0) - (a.cvssScore ?? 0))
     .slice(0, 5);
 }
 

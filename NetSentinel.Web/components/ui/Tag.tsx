@@ -8,7 +8,7 @@ export function StatusTag({status}:{status:DeviceStatus}){
 const EVC:Record<string,string>={CRITICAL:"bg-danger-light text-danger border-danger/20",HIGH:"bg-warn-light text-warn border-warn/20",MEDIUM:"bg-brand-light text-brand border-brand/20",LOW:"border-[var(--b1)] text-faint"};
 const EVL:Record<string,string>={CRITICAL:"Crítico",HIGH:"Alto",MEDIUM:"Médio",LOW:"Baixo"};
 export function SeverityTag({severity}:{severity:string}){
-  const s=severity.toUpperCase();
+  const s = (severity ?? "").toUpperCase();
   return <span className={cn("inline-flex items-center font-mono text-[9.5px] font-medium uppercase tracking-[0.3px] px-[6px] py-[2px] border",EVC[s]??"text-faint border-[var(--b1)]")} style={!EVC[s]?{background:"var(--s2)"}:undefined}>{EVL[s]??s}</span>;
 }
 const LC:Record<string,string>={install:"bg-brand-light text-brand border-brand/20",alert:"bg-danger-light text-danger border-danger/20",update:"bg-ok-light text-ok border-ok/20",scan:"border-[var(--b0)] text-faint"};

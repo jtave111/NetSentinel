@@ -1,4 +1,9 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5149";
+const defaultHost = typeof window !== "undefined" ? window.location.hostname : "localhost";
+const defaultProtocol = typeof window !== "undefined" ? window.location.protocol : "http:";
+const defaultApi = `${defaultProtocol}//${defaultHost}:5149`;
+const BASE = process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== "http://localhost:5149"
+  ? process.env.NEXT_PUBLIC_API_URL
+  : defaultApi;
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
