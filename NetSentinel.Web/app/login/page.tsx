@@ -11,7 +11,7 @@ export default function LoginPage() {
   useEffect(()=>{ if(!isLoading&&user) router.replace("/"); },[user,isLoading,router]);
   async function onSubmit(e:React.FormEvent){ e.preventDefault(); setErr(""); setLoading(true);
     try { await login(u,p); showToast("Login realizado com sucesso.","success"); router.replace("/"); }
-    catch { setErr("Usuário ou senha inválidos."); } finally { setLoading(false); }
+    catch (_e) { setErr("Usuário ou senha inválidos."); } finally { setLoading(false); }
   }
   const fs="w-full h-9 px-3 font-mono text-[12.5px] outline-none transition-colors";
   const fst={background:"var(--s1)",border:"1px solid var(--b0)",color:"var(--t0)"};

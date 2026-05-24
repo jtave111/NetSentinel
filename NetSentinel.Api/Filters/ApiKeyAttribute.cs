@@ -10,7 +10,6 @@ public class ApiKeyAttribute : Attribute, IAsyncActionFilter
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        // Verifica o header
         if (!context.HttpContext.Request.Headers.TryGetValue(ApiKeyHeaderName, out var extractedApiKey))
         {
             context.Result = new UnauthorizedObjectResult(new { error = "Acesso negado: API Key não fornecida." });

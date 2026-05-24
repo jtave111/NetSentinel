@@ -34,7 +34,7 @@
                 .Include(u => u.Role)
                 .SingleOrDefaultAsync(u => u.Username == request.Username);
 
-            if(user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+            if(user == null || !BCrypt.Net.BCrypt.EnhancedVerify(request.Password, user.Password))
             {
             return  Unauthorized(new {erro = "Invalid username or password"});
             }    

@@ -1,9 +1,3 @@
-// =============================================================================
-// NETSENTINEL — NvdResponseDto.cs
-// =============================================================================
-// Mapeia a resposta do endpoint de CVEs:
-// GET https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=...
-// =============================================================================
 
 using System.Text.Json.Serialization;
 
@@ -17,7 +11,7 @@ public class NvdResponseDto
     [JsonPropertyName("totalResults")]
     public int TotalResults { get; set; }
 
-    //  "vulnerabilities" — correto para o endpoint de CVEs
+  
     [JsonPropertyName("vulnerabilities")]
     public List<NvdVulnerabilityWrapper>? Vulnerabilities { get; set; }
 }

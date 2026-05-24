@@ -28,7 +28,7 @@ async function request<T>(
   let data;
   try {
     data = text ? JSON.parse(text) : null;
-  } catch {
+  } catch (_e) {
     data = text;
   }
 

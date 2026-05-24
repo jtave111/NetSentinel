@@ -14,13 +14,13 @@ function parseJwt(t: string): AuthUser|null {
       email:    p["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]??"",
       role:     p["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]??"Employee",
     };
-  } catch { return null; }
+  } catch (_e) { return null; }
 }
 export function AuthProvider({ children }: { children:React.ReactNode }) {
   const [user,setUser]           = useState<AuthUser|null>(null);
   const [token,setToken]         = useState<string|null>(null);
   const [isLoading,setIsLoading] = useState(true);
-  useEffect(()=>{ const s=localStorage.getItem("ns_token"); if(s){setToken(s);setUser(parseJwt(s));} setIsLoading(false); },[]);
+  useEffect(()=>{ try { const s=localStorage.getItem("ns_token"); if(s){setToken(s);setUser(parseJwt(s));} } catch (_e) {} finally { setIsLoading(false); } },[]);
   async function login(username:string,password:string) {
     const r = await apiLogin(username,password);
     localStorage.setItem("ns_token",r.token); setToken(r.token); setUser(parseJwt(r.token));

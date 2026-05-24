@@ -1,22 +1,56 @@
-# ESTÁGIO 1: Build (Compilação do JS)
-FROM node:20-alpine AS build-step
+# ================================================================
+# NetSentinel.Web — Dockerfile para produção
+# Next.js 15 + React 19
+# ================================================================
+
+FROM node:20-alpine AS base
+
+# ── Estágio 1: Dependências ────────────────────────────────────
+FROM base AS deps
 WORKDIR /app
 
-# Copia os ficheiros de pacotes e instala as dependências
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
-# Copia o código fonte e gera a versão de produção
+# ── Estágio 2: Build ────────────────────────────────────────────
+FROM base AS builder
+WORKDIR /app
+
+ARG NEXT_PUBLIC_API_URL=http://localhost:5149
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Cria pasta public vazia se não existir (evita erro no COPY)
+RUN mkdir -p public
+
 RUN npm run build
 
-# ESTÁGIO 2: Runtime (Servidor Web Nginx)
-FROM nginx:stable-alpine
+# ── Estágio 3: Produção ─────────────────────────────────────────
+FROM base AS runner
+WORKDIR /app
 
-# CORREÇÃO: O Next.js com exportação estática gera a pasta 'out'
-COPY --from=build-step /app/out /usr/share/nginx/html
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Expõe a porta 80 (padrão HTTP)
-EXPOSE 80
+# Cria usuário não-root
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-CMD ["nginx", "-g", "daemon off;"]
+# Cria pasta public vazia
+RUN mkdir -p public
+
+# Copia apenas o necessário do build
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]
