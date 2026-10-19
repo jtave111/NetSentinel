@@ -25,12 +25,12 @@ namespace NetSentinel.Api.Services
             try
             {
                 string prompt = $@"Você é um especialista em segurança cibernética.
-Para a vulnerabilidade {cveName}: {description}
-Responda APENAS com um dos seguintes valores JSON, sem nenhum texto adicional:
-{{ ""resolutionMode"": ""PATCH_AVAILABLE"" }}
-ou {{ ""resolutionMode"": ""WORKAROUND"" }}
-ou {{ ""resolutionMode"": ""NO_FIX"" }}
-ou {{ ""resolutionMode"": ""VENDOR_FIX"" }}";
+                    Para a vulnerabilidade {cveName}: {description}
+                    Responda APENAS com um dos seguintes valores JSON, sem nenhum texto adicional:
+                    {{ ""resolutionMode"": ""PATCH_AVAILABLE"" }}
+                    ou {{ ""resolutionMode"": ""WORKAROUND"" }}
+                    ou {{ ""resolutionMode"": ""NO_FIX"" }}
+                    ou {{ ""resolutionMode"": ""VENDOR_FIX"" }}";
 
                 var requestBody = new
                 {
